@@ -69,10 +69,6 @@ class kubectl_conf_check:
       
          	
             if (api_server_address_pai_conf not in api_server_addresses) and (api_server_address_aks_conf not in api_server_addresses):
-                print(api_server_address_pai_conf)
-                print(api_server_address_aks_conf)
-                for a in api_server_addresses:
-                    print(a)
                 self.logger.warning("CHECKING FAILED: The api_server_address in local configuration is different from the one in pai's configuration.".format(self.kube_conf_path))
                 return False
 

@@ -326,7 +326,6 @@ class Machine(SubCmd):
 
         for host in node_list["machine-list"]:
             if "nodename" not in host:
-                print(host)
                 host["nodename"] = host["hostip"]
 
         return cluster_object_model_k8s, node_list
