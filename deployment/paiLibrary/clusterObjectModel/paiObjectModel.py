@@ -18,7 +18,8 @@
 from __future__ import print_function
 #
 import sys
-
+from ..common import linux_shell
+import re
 
 class paiObjectModel:
 
@@ -321,6 +322,15 @@ class paiObjectModel:
 
 
     def getK8sDashboardUri(self):
+
+        if self.rawData["kubernetesConfiguration"]["kubernetes"]["k8s-type"] == "aks":
+            cmd = "kubectl describe pods kubernetes-dashboard --namespace=kube-system | grep IP"
+            output = linux_shell.execute_shell_with_output(cmd, "Failed to exec {0}".format(cmd))
+            # extract ip address
+            dashboardInfo = re.findall(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b", output)
+            if dashboardInfo:
+                ret = "http://{0}:9090".format(dashboardInfo[0])
+                return ret            
 
         vip = ""
 
