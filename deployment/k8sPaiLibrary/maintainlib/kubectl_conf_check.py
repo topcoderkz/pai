@@ -59,16 +59,26 @@ class kubectl_conf_check:
 
         try:
             local_kubectl_conf = common.load_yaml_file("{0}/config".format(self.kube_conf_path))
-            api_server_address = local_kubectl_conf['clusters'][0]['cluster']['server']
-
             api_server_address_pai_conf = "http://{0}:8080".format(self.cluster_config['clusterinfo']['api-servers-ip'])
+	    api_server_address_aks_conf = "https://{0}:443".format(self.cluster_config['clusterinfo']['api-servers-ip'])
 
-            if api_server_address != api_server_address_pai_conf:
+            api_server_addresses = []
+
+            for api_server in local_kubectl_conf['clusters']:
+                api_server_addresses.append(api_server['cluster']['server'])
+      
+         	
+            if (api_server_address_pai_conf not in api_server_addresses) and (api_server_address_aks_conf not in api_server_addresses):
+                print(api_server_address_pai_conf)
+                print(api_server_address_aks_conf)
+                for a in api_server_addresses:
+                    print(a)
                 self.logger.warning("CHECKING FAILED: The api_server_address in local configuration is different from the one in pai's configuration.".format(self.kube_conf_path))
                 return False
 
         except Exception as e:
 
+            self.logger.error(e)
             self.logger.error("CHECK FAILED:  Unable to compare api_server_address in the configuration.")
             return False
 

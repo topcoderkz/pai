@@ -311,7 +311,11 @@ class paiObjectModel:
     def getK8sApiServerUri(self):
 
         ip = self.rawData["kubernetesConfiguration"]["kubernetes"]["load-balance-ip"]
-        ret = "http://{0}:{1}".format(ip, 8080)
+        ret = ""
+        if self.rawData["kubernetesConfiguration"]["kubernetes"]["k8s-type"] == "aks":
+            ret = "https://{0}:{1}".format(ip, 443)
+        else:
+            ret = "http://{0}:{1}".format(ip, 8080)
         return ret
 
 
