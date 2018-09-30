@@ -311,43 +311,27 @@ class paiObjectModel:
 
     def getK8sApiServerUri(self):
 
+        http = self.rawData["kubernetesConfiguration"]["kubernetes"]["api-server-http"]
         ip = self.rawData["kubernetesConfiguration"]["kubernetes"]["load-balance-ip"]
-        ret = ""
-        if self.rawData["kubernetesConfiguration"]["kubernetes"]["k8s-type"] == "aks":
-            ret = "https://{0}:{1}".format(ip, 443)
-        else:
-            ret = "http://{0}:{1}".format(ip, 8080)
+        port = self.rawData["kubernetesConfiguration"]["kubernetes"]["api-server-port"]
+        ret = "{0}://{1}:{2}".format(http, ip, port)
         return ret
 
 
 
     def getK8sDashboardUri(self):
 
-        if self.rawData["kubernetesConfiguration"]["kubernetes"]["k8s-type"] == "aks":
-            cmd = "kubectl describe pods kubernetes-dashboard --namespace=kube-system | grep IP"
-            output = linux_shell.execute_shell_with_output(cmd, "Failed to exec {0}".format(cmd))
-            # extract ip address
-            dashboardInfo = re.findall(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b", output)
-            if dashboardInfo:
-                ret = "http://{0}:9090".format(dashboardInfo[0])
-                return ret            
-
-        vip = ""
-
-        for host in self.rawData["clusterConfiguration"]["machine-list"]:
-            if "dashboard" in host and host["dashboard"] == "true":
-                vip = host["hostip"]
-                break
-
-        if vip == "":
-            print("no machine labeled with dashboard = true")
-            sys.exit(1)
-
-        ret = "http://{0}:9090".format(vip)
-        return ret
-
-
-
+        cmd = "kubectl describe pods kubernetes-dashboard --namespace=kube-system | grep IP"
+        output = linux_shell.execute_shell_with_output(cmd, "Failed to exec {0}".format(cmd))
+        # extract ip address
+        dashboardInfo = re.findall(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b", output)
+        if dashboardInfo:
+            ret = "http://{0}:9090".format(dashboardInfo[0])
+            return ret
+        
+        print("getK8sDashboardUri failed, please check k8s dashboard pod ip by 'kubectl describe pods kubernetes-dashboard --namespace=kube-system | grep IP'")
+        sys.exit(1)
+            
 
     def getGrafanaUri(self):
 

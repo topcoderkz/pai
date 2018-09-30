@@ -59,16 +59,13 @@ class kubectl_conf_check:
 
         try:
             local_kubectl_conf = common.load_yaml_file("{0}/config".format(self.kube_conf_path))
-            api_server_address_pai_conf = "http://{0}:8080".format(self.cluster_config['clusterinfo']['api-servers-ip'])
-	    api_server_address_aks_conf = "https://{0}:443".format(self.cluster_config['clusterinfo']['api-servers-ip'])
+            http = self.cluster_config['clusterinfo']['api-server-http']
+            ip = self.cluster_config['clusterinfo']['api-servers-ip']
+            port = self.cluster_config['clusterinfo']['api-server-port']
+            api_server_address_pai_conf = "{0}://{1}:{2}".format(http, ip, port)
+	    api_server_address = local_kubectl_conf['clusters'][0]['cluster']['server']
 
-            api_server_addresses = []
-
-            for api_server in local_kubectl_conf['clusters']:
-                api_server_addresses.append(api_server['cluster']['server'])
-      
-         	
-            if (api_server_address_pai_conf not in api_server_addresses) and (api_server_address_aks_conf not in api_server_addresses):
+            if api_server_address != api_server_address_pai_conf:
                 self.logger.warning("CHECKING FAILED: The api_server_address in local configuration is different from the one in pai's configuration.".format(self.kube_conf_path))
                 return False
 
