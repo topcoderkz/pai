@@ -63,7 +63,7 @@ class kubectl_conf_check:
             ip = self.cluster_config['clusterinfo']['api-servers-ip']
             port = self.cluster_config['clusterinfo']['api-server-port']
             api_server_address_pai_conf = "{0}://{1}:{2}".format(http, ip, port)
-	    api_server_address = local_kubectl_conf['clusters'][0]['cluster']['server']
+            api_server_address = local_kubectl_conf['clusters'][0]['cluster']['server']
 
             if api_server_address != api_server_address_pai_conf:
                 self.logger.warning("CHECKING FAILED: The api_server_address in local configuration is different from the one in pai's configuration.".format(self.kube_conf_path))
